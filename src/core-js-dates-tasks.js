@@ -120,8 +120,13 @@ function getCountDaysOnPeriod(/* dateStart, dateEnd */) {
  * '2024-02-02', { start: '2024-02-02', end: '2024-03-02' } => true
  * '2024-02-10', { start: '2024-02-02', end: '2024-03-02' } => true
  */
-function isDateInPeriod(/* date, period */) {
-  throw new Error('Not implemented');
+function isDateInPeriod(date, period) {
+  const newDate = new Date(date);
+  const { start, end } = period;
+  if (newDate >= new Date(start) && newDate <= new Date(end)) {
+    return true;
+  }
+  return false;
 }
 
 /**
@@ -135,8 +140,18 @@ function isDateInPeriod(/* date, period */) {
  * '1999-01-05T02:20:00.000Z' => '1/5/1999, 2:20:00 AM'
  * '2010-12-15T22:59:00.000Z' => '12/15/2010, 10:59:00 PM'
  */
-function formatDate(/* date */) {
-  throw new Error('Not implemented');
+function formatDate(date) {
+  const newDate = new Date(date);
+  const month = newDate.getUTCMonth() + 1;
+  const day = newDate.getUTCDate();
+  const year = newDate.getUTCFullYear();
+  const hours = newDate.getUTCHours();
+  const minutes = newDate.getUTCMinutes().toString().padStart(2, '0');
+  const seconds = newDate.getUTCSeconds().toString().padStart(2, '0');
+  const amOrPM = hours < 12 ? 'AM' : 'PM';
+  const newHours = hours % 12 || 12;
+  const time = `${newHours}:${minutes}:${seconds} ${amOrPM}`;
+  return `${month}/${day}/${year}, ${time}`;
 }
 
 /**
@@ -151,8 +166,18 @@ function formatDate(/* date */) {
  * 12, 2023 => 10
  * 1, 2024 => 8
  */
-function getCountWeekendsInMonth(/* month, year */) {
-  throw new Error('Not implemented');
+function getCountWeekendsInMonth(month, year) {
+  let count = 0;
+  const monthNumber = month - 1;
+  const newDate = new Date(year, monthNumber, 1);
+  while (newDate.getMonth() === monthNumber) {
+    const dayOfWeek = newDate.getDay();
+    if (dayOfWeek === 0 || dayOfWeek === 6) {
+      count += 1;
+    }
+    newDate.setDate(newDate.getDate() + 1);
+  }
+  return count;
 }
 
 /**
@@ -168,8 +193,16 @@ function getCountWeekendsInMonth(/* month, year */) {
  * Date(2024, 0, 31) => 5
  * Date(2024, 1, 23) => 8
  */
-function getWeekNumberByDate(/* date */) {
-  throw new Error('Not implemented');
+function getWeekNumberByDate(date) {
+  const millisecondsInDay = 24 * 60 * 60 * 1000 + 1;
+  const daysInTheWeek = 7;
+  const thursdayNumber = 4;
+  const nearestThursdayToDate = date.setDate(
+    date.getDate() - (date.getDay() || daysInTheWeek) + thursdayNumber
+  );
+  const firsDayOfTheYear = new Date(date.getFullYear(), 0, 1);
+  const daysDelta = nearestThursdayToDate - firsDayOfTheYear;
+  return Math.ceil((daysDelta / millisecondsInDay + 1) / 7);
 }
 
 /**
